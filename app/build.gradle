@@ -16,4 +16,5 @@ android {
 
 dependencies {
     implementation project(":my-lib")
+    implementation "at.xa1.example:external-lib:1.0.0"
 }
