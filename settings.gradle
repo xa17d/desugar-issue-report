@@ -1,0 +1,3 @@
+rootProject.name = "Desugar Issue Report"
+
+include ':app', ':my-lib'
