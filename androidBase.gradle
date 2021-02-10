@@ -8,10 +8,20 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        example {
+            storeFile rootProject.file("example.keystore") // Note: Never add the keystore to the repo for production apps
+            storePassword "example" // Note: Never hardcode this information for production apps
+            keyAlias "key0"
+            keyPassword "example" // Note: Never hardcode this information for production apps
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             debuggable false
+            signingConfig signingConfigs.example
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

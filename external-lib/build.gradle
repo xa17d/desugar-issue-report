@@ -6,5 +6,5 @@ plugins {
 apply from: rootProject.file("androidBase.gradle")
 
 dependencies {
-    implementation "at.xa1.example:external-lib:1.0.0"
+
 }

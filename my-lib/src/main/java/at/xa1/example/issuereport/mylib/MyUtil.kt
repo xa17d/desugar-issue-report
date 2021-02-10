@@ -1,9 +1,9 @@
 package at.xa1.example.issuereport.mylib
 
-import java.time.Duration
+import at.xa1.example.issuereport.externallib.ExternalUtil
 
 class MyUtil {
     fun useSomeJavaTimeStuffInternally(): Boolean {
-        return Duration.ofMinutes(-1).isNegative
+        return ExternalUtil().useSomeJavaTimeStuffInternally()
     }
 }
