@@ -1,6 +1,7 @@
 # Desugar Issue Report
 
 The goal of this project is to reproduce an issue with [desugaring](https://developer.android.com/studio/write/java8-support#library-desugaring) when desugared API is used in an external dependency.
+The issue was reported on [Google's Issue Tracker #179800061](https://issuetracker.google.com/issues/179800061).
 
 ## Setup
 
@@ -28,6 +29,19 @@ Instead of `project(…)`-dependency, `:external-lib` is included as external ma
 
 ## Problem Description
 
+If `java.time` is used in an external dependency (included via maven), that is included in an android library, the desugared `java.time` class is **not** included in the final APK.
+Therefore, the app crashes with a `NoClassDefFoundError`.
+
+I also investigated all `desugar_*_keep_rules` folders in `:app`, but none of them contain the used and desugared `java.time` class.
+However, decompiling the APK shows that the `java.time` class usage was properly desugared to `Lj$/time/…`.
+
+**Reproducing the issue in this example:**
+
+`MyUtil` is a custom class in `:my-lib`, which uses `ExternalUtil` which is defined in `:external-lib` and included via external maven dependency.
+`ExternalUtil` uses `java.time` internally.
+
+`MainActivity` within `:app` uses class `MyUtil`, which again uses `ExternalUtil` which is included via external maven dependency, and `ExternalUtil` uses `java.time` internally.
+
 The app crashes on startup for _release_ builds:
 ```bash
 ./gradlew :app:assembleRelease
@@ -35,9 +49,12 @@ adb install app/build/outputs/apk/release/app-release.apk
 adb shell am start -a android.intent.action.MAIN -n at.xa1.example.issuereport/at.xa1.example.issuereport.MainActivity
 ```
 
-`MainActivity` within `:app` uses class `MyUtil`, which again uses `ExternalUtil` which is included via external maven dependency, and `ExternalUtil` uses `java.time` internally.
+I also created an [Instrumentation Test](app/src/androidTest/java/at/xa1/example/issuereport/ExternalDependencyCanUseJavaTime.kt) to reproduce the issue. It can be run with:
+```bash
+./gradlew :app:connectedReleaseAndroidTest
+```
 
-Exception:
+Exception (same in both, the app and the instrumentation test, only the calling stacktrace is different of course):
 ```
 E/AndroidRuntime: FATAL EXCEPTION: main
     Process: at.xa1.example.issuereport, PID: 23051
